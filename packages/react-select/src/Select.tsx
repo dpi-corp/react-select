@@ -685,7 +685,11 @@ export default class Select<
     super(props);
     this.state.instancePrefix =
       'react-select-' + (this.props.instanceId || ++instanceId);
-    this.state.selectValue = cleanValue(props.value);
+    this.state.selectValue = cleanValue(
+      props.value,
+      props.options,
+      this.getOptionValue
+    );
     // Set focusedOption if menuIsOpen is set on init (e.g. defaultMenuIsOpen)
     if (props.menuIsOpen && this.state.selectValue.length) {
       const focusableOptionsWithIds: FocusableOptionWithId<Option>[] =
@@ -714,8 +718,15 @@ export default class Select<
       prevWasFocused,
       instancePrefix,
     } = state;
-    const { options, value, menuIsOpen, inputValue, isMulti } = props;
-    const selectValue = cleanValue(value);
+    const {
+      options,
+      value,
+      menuIsOpen,
+      inputValue,
+      isMulti,
+      getOptionValue: getOptionValueProp,
+    } = props;
+    const selectValue = cleanValue(value, options, getOptionValueProp);
     let newMenuOptionsState = {};
     if (
       prevProps &&

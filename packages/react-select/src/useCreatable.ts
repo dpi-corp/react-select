@@ -134,7 +134,7 @@ export default function useCreatable<
 
   const newOption = useMemo(
     () =>
-      isValidNewOption(inputValue, cleanValue(value), propsOptions, {
+      isValidNewOption(inputValue, cleanValue(value, propsOptions, getOptionValue), propsOptions, {
         getOptionValue,
         getOptionLabel,
       })
@@ -190,7 +190,7 @@ export default function useCreatable<
           propsOnChange(
             valueTernary(
               isMulti,
-              [...cleanValue(value), newOptionData],
+              [...cleanValue(value, options, getOptionValue), newOptionData],
               newOptionData
             ),
             newActionMeta
@@ -209,6 +209,8 @@ export default function useCreatable<
       onCreateOption,
       propsOnChange,
       value,
+      options,
+      getOptionValue,
     ]
   );
 

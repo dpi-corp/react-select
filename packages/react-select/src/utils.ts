@@ -2,11 +2,13 @@ import type { StylesProps } from './styles';
 import type {
   ClassNamesState,
   CommonPropsAndClassName,
+  GetOptionValue,
   GroupBase,
   InputActionMeta,
   MultiValue,
   OnChangeValue,
   Options,
+  OptionsOrGroups,
   PropsValue,
   SingleValue,
 } from './types';
@@ -64,11 +66,39 @@ export function classNames(
 // Clean Value
 // ==============================
 
-export const cleanValue = <Option>(
-  value: PropsValue<Option>
+const isGroup = <Option, Group extends GroupBase<Option>>(
+  option: Option | Group
+): option is Group => {
+  return (option as Group).options !== undefined;
+};
+
+export const cleanValue = <Option, Group extends GroupBase<Option>>(
+  value: PropsValue<Option>,
+  options: OptionsOrGroups<Option, Group>,
+  getOptionValue: GetOptionValue<Option>
 ): Options<Option> => {
-  if (isArray(value)) return value.filter(Boolean);
+  if (isArray(value)) {
+    const data = value.filter(Boolean).map((val) => {
+      return cleanValue(val, options, getOptionValue);
+    });
+    const flatData = ([] as Options<Option>).concat(...data);
+    return flatData;
+  }
   if (typeof value === 'object' && value !== null) return [value];
+  if (typeof value === 'string' || (typeof value === 'number' && options)) {
+    const finalOptions: Option[] = [];
+    options.map((option) => {
+      if (isGroup(option)) {
+        const groupOptions = option.options.filter(
+          (opt) => getOptionValue(opt) === value
+        );
+        finalOptions.push(...groupOptions);
+      } else {
+        if (getOptionValue(option) === value) finalOptions.push(option);
+      }
+    });
+    return finalOptions;
+  }
   return [];
 };
 
