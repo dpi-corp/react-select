@@ -78,14 +78,20 @@ export const cleanValue = <Option, Group extends GroupBase<Option>>(
   getOptionValue: GetOptionValue<Option>
 ): Options<Option> => {
   if (isArray(value)) {
-    const data = value.filter(Boolean).map((val) => {
-      return cleanValue(val, options, getOptionValue);
-    });
+    const data = value
+      .filter((f) => f !== null && f !== undefined)
+      .map((val) => {
+        return cleanValue(val, options, getOptionValue);
+      });
     const flatData = ([] as Options<Option>).concat(...data);
     return flatData;
   }
   if (typeof value === 'object' && value !== null) return [value];
-  if (typeof value === 'string' || (typeof value === 'number' && options)) {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    (typeof value === 'boolean' && options)
+  ) {
     const finalOptions: Option[] = [];
     options.map((option) => {
       if (isGroup(option)) {
